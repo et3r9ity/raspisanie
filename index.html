@@ -1266,7 +1266,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
   async function exportAll() {
     var btn = $('#btnZip'); btn.disabled = true;
     var modal = document.createElement('div'); modal.className = 'modal';
-    modal.innerHTML = '<div class="card"><h3>Готовлю файлы…</h3><div id="pmsg" class="note">Начинаю</div><div class="progress"><i id="pbar"></i></div></div>';
+    modal.innerHTML = '<div class="card"><h3>Готовлю файлы…</h3><div id="pmsg" class="note">Начинаю</div><div class="progress"><i id="pbar"></i></div><div class="note" style="margin-top:10px;color:var(--muted);font-size:13px">Не переключайте вкладку, пока идёт сборка, — в фоне браузер работает медленнее.</div></div>';
     document.body.appendChild(modal);
     try {
       gen = E.generate(cur.start, cur.end, D, engineState());
