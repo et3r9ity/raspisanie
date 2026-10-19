@@ -551,15 +551,15 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
       var fixTpl = ftAll ? (ftAll[cl] || ftAll.wk || ftAll.sat || ftAll.sun) : null;
       var ftMismatch = ftAll && !ftAll[cl];
       var cls = function (w) { return w === 6 ? 'sun' : 'wk'; };
-      var mst = isRed ? 'red' : 'plain';
+      var mst = 'plain'; // красным выделяется только то, что отмечено «красным» (Всенощное и т. п.)
       // утро
       if (i.tpl && ((i.off >= -49 && i.off <= 6) || [9, 39, 48, 49, 50].indexOf(i.off) >= 0)) {
         day.flags.tpl = true;
-        day.blocks = i.tpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: l.red ? 'red' : (l.bold ? 'bold' : 'plain') }; }) }; });
+        day.blocks = i.tpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: (/Всенощн|Ночная/i.test(l.t) || (i.off >= 0 && i.off <= 6)) ? 'red' : 'plain' }; }) }; });
         if ([9, 39, 48, 49, 50].indexOf(i.off) >= 0) { day.blocks = day.blocks.filter(function (b) { return parseFloat(b.time) < 15; }); day.flags.tplEve = true; }
       } else if (SPECIAL_FULL[i.key] && fixTpl) {
         day.flags.tpl = true; if (ftMismatch) day.flags.check = true;
-        day.blocks = fixTpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: l.red ? 'red' : (l.bold ? 'bold' : 'plain') }; }) }; });
+        day.blocks = fixTpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: (/Всенощн|Ночная/i.test(l.t) || (i.off >= 0 && i.off <= 6)) ? 'red' : 'plain' }; }) }; });
       } else if (lit[x]) {
         if (i.wd === 6) {
           day.blocks.push({ time: T.sunEarly, kind: 'm', lines: [ln(L.hours, mst), ln(L.early, mst)] });
@@ -661,8 +661,9 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
       if (!cur || d.wd === 6) { cur = []; weeks.push(cur); }
       var blocks = (d.blocks || []).map(function (b) {
         var txt = b.lines.map(function (l) { return (lang === 'lv' ? (l.lv || l.ru) : l.ru) || ''; }).filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-        var vig = /Всенощн|Visnakts/.test(txt);
-        return { time: b.time || '', text: txt, kind: vig ? 'v' : (!b.time || parseFloat(b.time) < 15 ? 'm' : 'e') };
+        // «красным»: отметка в блоке (по умолчанию — Всенощное бдение)
+        var hl = b.lines.some(function (l) { return l.st === 'red'; });
+        return { time: b.time || '', text: txt, kind: hl ? 'v' : (!b.time || parseFloat(b.time) < 15 ? 'm' : 'e') };
       }).filter(function (b) { return b.text; });
       var feast = (d.feast || []).map(function (p) { return (lang === 'lv' ? (p.lv || p.ru) : p.ru) || ''; }).filter(Boolean);
       cur.push({ d: +d.date.slice(8, 10), short: t.short[d.wd], red: !!d.red, fs: d.feastStyle || 'plain', feast: feast, blocks: blocks });
@@ -1110,7 +1111,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
         '<div class="fld"><textarea class="ru" rows="' + Math.max(1, b.lines.length) + '" aria-label="Служба по-русски">' + h(b.lines.map(function (l) { return l.ru; }).join('\n')) + '</textarea></div>' +
         '<div class="fld lvwrap"><textarea class="lv" rows="' + Math.max(1, b.lines.length) + '" aria-label="Служба по-латышски">' + h(b.lines.map(function (l) { return l.lv || ''; }).join('\n')) + '</textarea></div>' +
         '<div class="tools"><button class="btn small ghost" data-act="delblk" title="Удалить службу">✕</button>' +
-        '<label class="redtog"><input type="checkbox" class="redchk"' + (red ? ' checked' : '') + '> красным</label></div>' +
+        '<label class="redtog"><input type="checkbox" class="redchk"' + (red ? ' checked' : '') + '> выделить красным</label></div>' +
         '</div>';
     }).join('');
     var opts = PRESETS.map(function (p, i) { return '<option value="' + i + '">' + h(p.label) + '</option>'; }).join('');
