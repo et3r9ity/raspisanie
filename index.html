@@ -122,6 +122,7 @@ table.pv tr.cut td{border-top:2px dashed var(--gold)}
 .modal h3{margin:0 0 10px;font:700 19px var(--serif)}
 .modal .grid{display:grid;grid-template-columns:1fr 110px;gap:8px 12px;align-items:center}
 .modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal .grid.hdrgrid{grid-template-columns:140px 1fr}
 .splist{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}
 .sprow{display:grid;grid-template-columns:70px 1fr 1fr auto;gap:6px;align-items:center}
 .sprow input{min-height:34px;padding:5px 8px;width:100%}
@@ -155,8 +156,8 @@ table.pv tr.cut td{border-top:2px dashed var(--gold)}
 .rs-row.red{background:#F7EFE6;border-radius:5px}
 .rs-row.gap{margin-top:3px}
 .rs-row.hl{border-bottom:.5px solid #E6DED2}
-.rs-d .n{font:600 15px/1.05 'Literata',serif}
-.rs-d .w{font:500 7px/1.25 'Golos Text',sans-serif;letter-spacing:.7px;text-transform:uppercase;color:#857B70;margin-top:1px}
+.rs-d .n{font:600 15px/1.2 'Literata',serif}
+.rs-d .w{font:500 7px/1.25 'Golos Text',sans-serif;letter-spacing:.7px;text-transform:uppercase;color:#857B70;margin-top:2.5px}
 .rs-row.red .rs-d .n,.rs-row.red .rs-d .w{color:#B3241B}
 .rs-f{padding-top:2px;font:400 var(--fs)/1.28 'Literata',serif}
 .rs-f div+div{margin-top:1px}
@@ -650,8 +651,9 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   // ---------- модель ----------
-  function model(days, lang, start, end) {
-    var t = TXT[lang];
+  function model(days, lang, start, end, o) {
+    var t = Object.assign({}, TXT[lang]); o = o || {};
+    if (o.church) t.church = o.church; if (o.title) t.title = o.title;
     var y1 = +start.slice(0, 4), m1 = +start.slice(5, 7), y2 = +end.slice(0, 4), m2 = +end.slice(5, 7), d1 = +start.slice(8, 10), d2 = +end.slice(8, 10);
     var monthLabel = (m1 === m2 && y1 === y2) ? t.mon[m1 - 1] + ' ' + y1 :
       (y1 === y2 ? t.mon[m1 - 1] + ' — ' + t.mon[m2 - 1] + ' ' + y2 : t.mon[m1 - 1] + ' ' + y1 + ' — ' + t.mon[m2 - 1] + ' ' + y2);
@@ -699,8 +701,8 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
       week.forEach(function (r, ri) {
         var id = rid++, fl = rowFlags(week, ri);
         var dateCol = { width: COL.date, stack: [
-          { text: String(r.d), font: 'Literata', bold: true, fontSize: 15, lineHeight: lit(1.05), color: r.red ? red : ink },
-          { text: r.short.toUpperCase(), font: 'GolosM', fontSize: 7, characterSpacing: 0.7, lineHeight: gol(1.25), color: r.red ? red : muted, margin: [0, 1, 0, 0] }] };
+          { text: String(r.d), font: 'Literata', bold: true, fontSize: 15, lineHeight: lit(1.2), color: r.red ? red : ink, margin: [0, -1.5, 0, 0] },
+          { text: r.short.toUpperCase(), font: 'GolosM', fontSize: 7, characterSpacing: 0.7, lineHeight: gol(1.25), color: r.red ? red : muted, margin: [0, 2.5, 0, 0] }] };
         var feastCol = { width: '*', margin: [0, 2, 0, 0], stack: r.feast.length ? r.feast.map(function (p, i) {
           return { text: p, font: 'Literata', bold: r.fs !== 'plain', fontSize: fs, lineHeight: lit(1.28), color: r.fs === 'red' ? red : ink, margin: [0, i ? 1 : 0, 0, 0] };
         }) : [{ text: '' }] };
@@ -799,8 +801,8 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
           var fill = r.red ? C.tint : undefined;
           var hb = fl.hair ? { top: none, left: none, right: none, bottom: { style: B.SINGLE, size: 4, color: C.hair } } : noB;
           var dateC = cell([
-            para([run(String(r.d), { font: 'Literata SemiBold', size: 15, color: r.red ? C.red : C.ink })], { line: 15.75, keepNext: true }),
-            para([run(r.short, { font: 'Golos Text Medium', size: 7, color: r.red ? C.red : C.muted, caps: true, cs: 0.7 })], { line: 8.75, before: 1, keepNext: true })
+            para([run(String(r.d), { font: 'Literata SemiBold', size: 15, color: r.red ? C.red : C.ink })], { line: 18, keepNext: true }),
+            para([run(r.short, { font: 'Golos Text Medium', size: 7, color: r.red ? C.red : C.muted, caps: true, cs: 0.7 })], { line: 8.75, before: 2.5, keepNext: true })
           ], { w: dW, fill: fill, ml: COL.padX, mt: pad, mb: pad, borders: hb });
           var fparas = (r.feast.length ? r.feast : ['']).map(function (p, i) {
             return para([run(p, { font: r.fs === 'plain' ? 'Literata' : 'Literata SemiBold', size: fs, color: r.fs === 'red' ? C.red : C.ink })], { line: fs * 1.28, before: i ? 1 : 2, keepNext: true });
@@ -907,9 +909,9 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
         var xD = X0 + COL.padX, xF = xD + COL.date + COL.gap, xS = xF + fW + COL.gap;
         var top = y + pad, local = [];
         // дата
-        local.push(['t', xD, top, 15 * 1.05, 'lit', 600, 15, r.red ? C.red : C.ink, String(r.d), 'left', 0]);
-        local.push(['t', xD, top + 15 * 1.05 + 1, 7 * 1.25, 'gol', 500, 7, r.red ? C.red : C.muted, r.short.toUpperCase(), 'left', 0.7]);
-        var dH = 15 * 1.05 + 1 + 7 * 1.25;
+        local.push(['t', xD, top, 15 * 1.2, 'lit', 600, 15, r.red ? C.red : C.ink, String(r.d), 'left', 0]);
+        local.push(['t', xD, top + 15 * 1.2 + 2.5, 7 * 1.25, 'gol', 500, 7, r.red ? C.red : C.muted, r.short.toUpperCase(), 'left', 0.7]);
+        var dH = 15 * 1.2 + 2.5 + 7 * 1.25;
         // праздник
         var fy = top + 2;
         r.feast.forEach(function (p, i) {
@@ -957,18 +959,34 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
   }
 
   // ---------- набор файлов периода ----------
+  var GEN_RU = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  function rangeRu(s, e, withYear) {
+    var d1 = +s.slice(8, 10), d2 = +e.slice(8, 10), m1 = +s.slice(5, 7), m2 = +e.slice(5, 7);
+    var t = m1 === m2 ? d1 + '–' + d2 + ' ' + GEN_RU[m2 - 1] : d1 + ' ' + GEN_RU[m1 - 1] + ' – ' + d2 + ' ' + GEN_RU[m2 - 1];
+    return withYear ? t + ' ' + e.slice(0, 4) : t;
+  }
+  function rangeLv(s, e, withYear) {
+    var f = function (x) { return x.slice(8, 10) + '.' + x.slice(5, 7); };
+    return f(s) + '–' + f(e) + (withYear ? '.' + e.slice(0, 4) : '');
+  }
+  var FOLD = {
+    ru: { lang: 'Русский', pdf: 'PDF', img: 'Картинки для Facebook', doc: 'Word', all: function (s, e) { return 'Расписание ' + rangeRu(s, e, true); }, sheet: function (i, s, e) { return 'Лист ' + i + ' · ' + rangeRu(s, e); } },
+    lv: { lang: 'Latviski', pdf: 'PDF', img: 'Attēli Facebook', doc: 'Word', all: function (s, e) { return 'Saraksts ' + rangeLv(s, e, true); }, sheet: function (i, s, e) { return 'Lapa ' + i + ' · ' + rangeLv(s, e); } }
+  };
   function fileSet(period, days) {
     var pm = E.periodMonth(period.start, period.end), tag = pad2(pm.m) + '.' + pm.y;
     var sheets = E.splitSheets(period.start, period.end);
+    var root = 'Расписание ' + rangeRu(period.start, period.end, true);
     var set = [];
     ['ru', 'lv'].forEach(function (lang) {
-      set.push({ name: 'raspisanie ' + tag + (lang === 'lv' ? '_LV' : ''), lang: lang, start: period.start, end: period.end, days: days, maxPages: sheets.length, image: false });
+      var F = FOLD[lang];
+      set.push({ name: F.all(period.start, period.end), dir: root + '/' + F.lang, F: F, lang: lang, start: period.start, end: period.end, days: days, maxPages: sheets.length, image: false });
       sheets.forEach(function (s, i) {
         var dd = days.filter(function (d) { return d.date >= s.start && d.date <= s.end; });
-        set.push({ name: 'rasp ' + tag + '-' + (i + 1) + (lang === 'lv' ? 'LV' : ''), lang: lang, start: s.start, end: s.end, days: dd, maxPages: 1, image: true });
+        set.push({ name: F.sheet(i + 1, s.start, s.end), dir: root + '/' + F.lang, F: F, lang: lang, start: s.start, end: s.end, days: dd, maxPages: 1, image: true });
       });
     });
-    return { tag: tag, items: set };
+    return { tag: tag, root: root, items: set };
   }
 
   var api = { model: model, pdfDef: pdfDef, fitPdf: fitPdf, fixDocx: fixDocx, drawSheet: drawSheet, PDF_FONTS: PDF_FONTS, docxDoc: docxDoc, sheetHTML: sheetHTML, fileSet: fileSet, COLORS: C, TXT: TXT, STEPS: STEPS };
@@ -1023,6 +1041,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
     var s = pstate();
     return { lit: s.lit, feast: s.feast, blocks: s.blocks, extra: s.extra, times: store.settings.times, akathistAnchor: akAnchor(cur.start), learned: store.learned, special: store.settings.special || [] };
   }
+  function hdr(lang) { var x = (store.settings.header || {})[lang] || {}; return { church: x.church || '', title: x.title || '' }; }
   function regen() {
     gen = E.generate(cur.start, cur.end, D, engineState());
     renderPeriod(); renderSummary(); renderDays(); renderPreview();
@@ -1215,7 +1234,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
     var sheets = E.splitSheets(cur.start, cur.end);
     var html = sheets.map(function (sh, i) {
       var dd = gen.days.filter(function (d) { return d.date >= sh.start && d.date <= sh.end; });
-      var M = R.model(dd, lang, sh.start, sh.end);
+      var M = R.model(dd, lang, sh.start, sh.end, hdr(lang));
       return '<div class="pv-page"><div class="pv-cap">Лист ' + (i + 1) + ' · ' + E.fmtDM(sh.start) + ' — ' + E.fmtDM(sh.end) + '</div><div class="pv-scale">' + R.sheetHTML(M, {}) + '</div></div>';
     }).join('');
     $('#sheet').innerHTML = html;
@@ -1246,8 +1265,8 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
   }
   async function sheetJpg(M, f) {
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
-    var cv = R.drawSheet(M, f, 2);
-    return await new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/jpeg', 0.92); });
+    var cv = R.drawSheet(M, f, 2160 / 595.28);
+    return await new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/jpeg', 0.93); });
   }
   function recordAkathists() {
     gen.days.forEach(function (d) {
@@ -1272,29 +1291,33 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
     try {
       gen = E.generate(cur.start, cur.end, D, engineState());
       var set = R.fileSet({ start: cur.start, end: cur.end }, gen.days), zip = new JSZip(), n = set.items.length, k = 0;
+      var withWord = !!store.settings.word;
       for (var i = 0; i < n; i++) {
         var it = set.items[i];
         $('#pmsg').textContent = it.name + ' (' + (i + 1) + ' из ' + n + ')';
-        var M = R.model(it.days, it.lang, it.start, it.end);
+        var M = R.model(it.days, it.lang, it.start, it.end, hdr(it.lang));
         var pdf = await R.fitPdf(M, it.maxPages || 1, pdfRender);
-        zip.file(it.name + '.pdf', pdf.out);
-        var hadBuf = typeof window.Buffer !== 'undefined';
-        if (!hadBuf) window.Buffer = { concat: function (arr) { var len = 0, o = 0; arr.forEach(function (b) { len += b.length; }); var u = new Uint8Array(len); arr.forEach(function (b) { u.set(b, o); o += b.length; }); return u; } };
-        var raw;
-        try { raw = await docx.Packer.toBlob(R.docxDoc([M], pdf.f, window.docx, docFonts())); } finally { if (!hadBuf) delete window.Buffer; }
-        zip.file(it.name + '.docx', await R.fixDocx(JSZip, raw, 'blob'));
-        if (it.image) { try { var jpg = await sheetJpg(M, pdf.f); if (jpg) zip.file('для Facebook/' + it.name + '.jpg', jpg); } catch (err) { console.warn('jpg', err); } }
+        zip.file(it.dir + '/' + it.F.pdf + '/' + it.name + '.pdf', pdf.out);
+        if (withWord) {
+          var hadBuf = typeof window.Buffer !== 'undefined';
+          if (!hadBuf) window.Buffer = { concat: function (arr) { var len = 0, o = 0; arr.forEach(function (b) { len += b.length; }); var u8 = new Uint8Array(len); arr.forEach(function (b) { u8.set(b, o); o += b.length; }); return u8; } };
+          var raw;
+          try { raw = await docx.Packer.toBlob(R.docxDoc([M], pdf.f, window.docx, docFonts())); } finally { if (!hadBuf) delete window.Buffer; }
+          zip.file(it.dir + '/' + it.F.doc + '/' + it.name + '.docx', await R.fixDocx(JSZip, raw, 'blob'));
+        }
+        if (it.image) { try { var jpg = await sheetJpg(M, pdf.f); if (jpg) zip.file(it.dir + '/' + it.F.img + '/' + it.name + '.jpg', jpg); } catch (err) { console.warn('jpg', err); } }
         k++; $('#pbar').style.width = Math.round(100 * k / n) + '%';
       }
-      if (window.RASP_FONTS) {
-        zip.file('шрифты для Word/Literata-Regular.ttf', b64bytes(RASP_FONTS.litR)); zip.file('шрифты для Word/Literata-SemiBold.ttf', b64bytes(RASP_FONTS.litSB));
-        zip.file('шрифты для Word/GolosText-Regular.ttf', b64bytes(RASP_FONTS.golR)); zip.file('шрифты для Word/GolosText-Medium.ttf', b64bytes(RASP_FONTS.golM)); zip.file('шрифты для Word/GolosText-SemiBold.ttf', b64bytes(RASP_FONTS.golSB));
+      if (withWord && window.RASP_FONTS) {
+        var fd = set.root + '/Шрифты для Word/';
+        zip.file(fd + 'Literata-Regular.ttf', b64bytes(RASP_FONTS.litR)); zip.file(fd + 'Literata-SemiBold.ttf', b64bytes(RASP_FONTS.litSB));
+        zip.file(fd + 'GolosText-Regular.ttf', b64bytes(RASP_FONTS.golR)); zip.file(fd + 'GolosText-Medium.ttf', b64bytes(RASP_FONTS.golM)); zip.file(fd + 'GolosText-SemiBold.ttf', b64bytes(RASP_FONTS.golSB));
       }
       recordAkathists();
-      zip.file('резервная копия расписания.json', backupJSON());
-      var zb = await zip.generateAsync({ type: 'blob' });
-      download(zb, 'raspisanie ' + set.tag + '.zip');
-      toast('Готово: архив «raspisanie ' + set.tag + '.zip» скачан');
+      zip.file(set.root + '/резервная копия расписания.json', backupJSON());
+      var zb = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+      download(zb, set.root + '.zip');
+      toast('Готово: архив «' + set.root + '.zip» скачан');
     } catch (e) {
       console.error(e); toast('Не получилось собрать файлы: ' + (e && e.message ? e.message : e), 6000);
     } finally { modal.remove(); btn.disabled = false; }
@@ -1316,6 +1339,13 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
       '<label>…и его дата</label><input type="date" id="t_akd" value="' + h(anc ? anc.date : '2026-10-27') + '">' +
       '</div><h3 style="margin-top:18px">Особые даты</h3><div class="note" style="color:var(--muted);font-size:14px;margin-bottom:8px">Престольный праздник, дни ангела, дни рождения и хиротонии священнослужителей. В эти дни литургия ставится всегда, текст добавляется к святым дня.</div>' +
       '<div id="sp_list" class="splist"></div><button class="btn small" id="sp_add" style="margin-top:8px">+ добавить дату</button>' +
+      '<h3 style="margin-top:18px">Шапка листа</h3><div class="grid hdrgrid">' +
+      '<label>Название (рус.)</label><input type="text" id="h_ru_c" placeholder="' + h(R.TXT.ru.church) + '" value="' + h(hdr('ru').church) + '">' +
+      '<label>Заголовок (рус.)</label><input type="text" id="h_ru_t" placeholder="' + h(R.TXT.ru.title) + '" value="' + h(hdr('ru').title) + '">' +
+      '<label>Nosaukums (latv.)</label><input type="text" id="h_lv_c" placeholder="' + h(R.TXT.lv.church) + '" value="' + h(hdr('lv').church) + '">' +
+      '<label>Virsraksts (latv.)</label><input type="text" id="h_lv_t" placeholder="' + h(R.TXT.lv.title) + '" value="' + h(hdr('lv').title) + '">' +
+      '</div><label class="switch" style="margin-top:14px;color:var(--ink);font-size:15px"><input type="checkbox" id="s_word"' + (store.settings.word ? ' checked' : '') + '> Добавлять в архив файлы Word</label>' +
+      '<div class="note" style="color:var(--muted);font-size:13px;margin-top:4px">Обычно не нужно: всё правится здесь, на странице. Word выглядит проще, чем PDF.</div>' +
       '<div class="acts"><button class="btn" id="s_cancel">Отмена</button><button class="btn primary" id="s_ok">Сохранить</button></div></div>';
     document.body.appendChild(m);
     var spRow = function (sp) {
@@ -1342,6 +1372,8 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
         if (d && (ru || lv)) sp.push({ md: ('0' + d[2]).slice(-2) + '-' + ('0' + d[1]).slice(-2), ru: ru, lv: lv });
       });
       store.settings.special = sp;
+      store.settings.header = { ru: { church: $('#h_ru_c').value.trim(), title: $('#h_ru_t').value.trim() }, lv: { church: $('#h_lv_c').value.trim(), title: $('#h_lv_t').value.trim() } };
+      store.settings.word = $('#s_word').checked;
       var ad = $('#t_akd').value; if (ad) { if (anc) delete store.akHistory[anc.date]; store.akHistory[ad] = +$('#t_ak').value; }
       save(); m.remove(); regen(); toast('Настройки сохранены');
     };
