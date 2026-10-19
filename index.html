@@ -159,7 +159,7 @@ table.pv tr.cut td{border-top:2px dashed var(--gold)}
 .rs-d .n{font:600 15px/1.2 'Literata',serif}
 .rs-d .w{font:500 7px/1.25 'Golos Text',sans-serif;letter-spacing:.7px;text-transform:uppercase;color:#857B70;margin-top:2.5px}
 .rs-row.red .rs-d .n,.rs-row.red .rs-d .w{color:#B3241B}
-.rs-f{padding-top:2px;font:400 var(--fs)/1.28 'Literata',serif}
+.rs-f{padding-top:2px;font:400 calc(var(--fs) + .75px)/1.25 'Literata',serif}
 .rs-f div+div{margin-top:1px}
 .rs-f.bold{font-weight:600}
 .rs-f.red{font-weight:600;color:#B3241B}
@@ -552,15 +552,15 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
       var fixTpl = ftAll ? (ftAll[cl] || ftAll.wk || ftAll.sat || ftAll.sun) : null;
       var ftMismatch = ftAll && !ftAll[cl];
       var cls = function (w) { return w === 6 ? 'sun' : 'wk'; };
-      var mst = 'plain'; // красным выделяется только то, что отмечено «красным» (Всенощное и т. п.)
+      var mst = isRed ? 'red' : 'plain'; // в красные праздники утренние службы (литургия) — красным
       // утро
       if (i.tpl && ((i.off >= -49 && i.off <= 6) || [9, 39, 48, 49, 50].indexOf(i.off) >= 0)) {
         day.flags.tpl = true;
-        day.blocks = i.tpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: (/Всенощн|Ночная/i.test(l.t) || (i.off >= 0 && i.off <= 6)) ? 'red' : 'plain' }; }) }; });
+        day.blocks = i.tpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: (/Всенощн|Ночная/i.test(l.t) || (i.off >= 0 && i.off <= 6) || (isRed && /итурги/i.test(l.t) && parseFloat(b.time) < 15)) ? 'red' : 'plain' }; }) }; });
         if ([9, 39, 48, 49, 50].indexOf(i.off) >= 0) { day.blocks = day.blocks.filter(function (b) { return parseFloat(b.time) < 15; }); day.flags.tplEve = true; }
       } else if (SPECIAL_FULL[i.key] && fixTpl) {
         day.flags.tpl = true; if (ftMismatch) day.flags.check = true;
-        day.blocks = fixTpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: (/Всенощн|Ночная/i.test(l.t) || (i.off >= 0 && i.off <= 6)) ? 'red' : 'plain' }; }) }; });
+        day.blocks = fixTpl.blocks.map(function (b) { return { time: b.time, lines: b.lines.map(function (l) { return { ru: l.t, lv: l.lv || D.vocab[l.t] || '', st: (/Всенощн|Ночная/i.test(l.t) || (i.off >= 0 && i.off <= 6) || (isRed && /итурги/i.test(l.t) && parseFloat(b.time) < 15)) ? 'red' : 'plain' }; }) }; });
       } else if (lit[x]) {
         if (i.wd === 6) {
           day.blocks.push({ time: T.sunEarly, kind: 'm', lines: [ln(L.hours, mst), ln(L.early, mst)] });
@@ -643,7 +643,8 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
   };
   var PAGE = { w: 595.28, h: 841.89, ml: 30, mr: 30, mt: 30, mb: 24 };
   var COL = { date: 34, svc: 252, time: 30, gap: 10, padX: 8, timeGap: 6 };
-  var NAT = { lit: 1.485, gol: 1.2 }; // естественный межстрочный шрифтов (hhea)
+  var NAT = { lit: 1.485, gol: 1.2 };
+  var FEAST_PLUS = 0.75; // названия праздников чуть крупнее остального текста // естественный межстрочный шрифтов (hhea)
   // ступени подгонки под лист: [кегль, отступ строки]
   var STEPS = [[9, 5], [9, 4.5], [9, 4], [8.75, 4], [8.5, 4], [8.5, 3.5], [8.25, 3.5], [8, 3]];
 
@@ -704,7 +705,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
           { text: String(r.d), font: 'Literata', bold: true, fontSize: 15, lineHeight: lit(1.2), color: r.red ? red : ink, margin: [0, -1.5, 0, 0] },
           { text: r.short.toUpperCase(), font: 'GolosM', fontSize: 7, characterSpacing: 0.7, lineHeight: gol(1.25), color: r.red ? red : muted, margin: [0, 2.5, 0, 0] }] };
         var feastCol = { width: '*', margin: [0, 2, 0, 0], stack: r.feast.length ? r.feast.map(function (p, i) {
-          return { text: p, font: 'Literata', bold: r.fs !== 'plain', fontSize: fs, lineHeight: lit(1.28), color: r.fs === 'red' ? red : ink, margin: [0, i ? 1 : 0, 0, 0] };
+          return { text: p, font: 'Literata', bold: r.fs !== 'plain', fontSize: fs + FEAST_PLUS, lineHeight: lit(1.25), color: r.fs === 'red' ? red : ink, margin: [0, i ? 1 : 0, 0, 0] };
         }) : [{ text: '' }] };
         var svcCol = { width: COL.svc, margin: [0, 2, 0, 0], stack: r.blocks.map(function (b, bi) {
           return { columns: [
@@ -805,7 +806,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
             para([run(r.short, { font: 'Golos Text Medium', size: 7, color: r.red ? C.red : C.muted, caps: true, cs: 0.7 })], { line: 8.75, before: 2.5, keepNext: true })
           ], { w: dW, fill: fill, ml: COL.padX, mt: pad, mb: pad, borders: hb });
           var fparas = (r.feast.length ? r.feast : ['']).map(function (p, i) {
-            return para([run(p, { font: r.fs === 'plain' ? 'Literata' : 'Literata SemiBold', size: fs, color: r.fs === 'red' ? C.red : C.ink })], { line: fs * 1.28, before: i ? 1 : 2, keepNext: true });
+            return para([run(p, { font: r.fs === 'plain' ? 'Literata' : 'Literata SemiBold', size: fs + FEAST_PLUS, color: r.fs === 'red' ? C.red : C.ink })], { line: (fs + FEAST_PLUS) * 1.25, before: i ? 1 : 2, keepNext: true });
           });
           var feastC = cell(fparas, { w: fW, fill: fill, mt: pad, mb: pad, ml: 0, borders: hb });
           var sparas = (r.blocks.length ? r.blocks : [{ time: '', text: '', kind: 'm' }]).map(function (b, bi) {
@@ -901,7 +902,7 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
     ops.push({ k: 'line', x1: X0, x2: X0 + W, y: y, w: 1.5, color: '#' + C.ink });
     y += 12;
     var fW = W - 2 * COL.padX - COL.date - COL.svc - 2 * COL.gap, sTW = COL.svc - COL.time - COL.timeGap;
-    var lhF = fs * 1.28;
+    var lhF = fs * 1.28, fF = fs + FEAST_PLUS, lhFe = fF * 1.25;
     M.weeks.forEach(function (week, wi) {
       if (wi > 0) y += 8;
       week.forEach(function (r, ri) {
@@ -916,8 +917,8 @@ Actual: `+w.attribValue);else{var N=w.tag,k=w.tags[w.tags.length-1]||w;N.ns===k.
         var fy = top + 2;
         r.feast.forEach(function (p, i) {
           if (i) fy += 1;
-          setF('lit', r.fs === 'plain' ? 400 : 600, fs, 0);
-          wrap(p, fW).forEach(function (ln) { local.push(['t', xF, fy, lhF, 'lit', r.fs === 'plain' ? 400 : 600, fs, r.fs === 'red' ? C.red : C.ink, ln, 'left', 0]); fy += lhF; });
+          setF('lit', r.fs === 'plain' ? 400 : 600, fF, 0);
+          wrap(p, fW).forEach(function (ln) { local.push(['t', xF, fy, lhFe, 'lit', r.fs === 'plain' ? 400 : 600, fF, r.fs === 'red' ? C.red : C.ink, ln, 'left', 0]); fy += lhFe; });
         });
         var fH = fy - top;
         // службы
